@@ -20,7 +20,24 @@ const inter = Inter({
 
 const serif = "font-[family-name:var(--font-fraunces)]";
 
-const portfolio = [
+type PortfolioItem = {
+  title: string;
+  category: string;
+  image: string;
+};
+
+type Service = {
+  title: string;
+  text: string;
+  image: string;
+};
+
+type Review = {
+  name: string;
+  text: string;
+};
+
+const portfolio: PortfolioItem[] = [
   {
     title: "The Wedding Story",
     category: "Wedding",
@@ -59,7 +76,7 @@ const portfolio = [
   },
 ];
 
-const services = [
+const services: Service[] = [
   {
     title: "Wedding Photography",
     text: "Authentic moments, emotions and details documented with a candid, contemporary approach.",
@@ -98,7 +115,7 @@ const services = [
   },
 ];
 
-const reviews = [
+const reviews: Review[] = [
   {
     name: "Kapil",
     text: "Really good photography and good job. I highly recommend this team.",
@@ -126,24 +143,40 @@ export default function Home() {
   const [showForm, setShowForm] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [hoveredService, setHoveredService] = useState(null);
+  const [hoveredService, setHoveredService] = useState<Service | null>(null);
   const [cursor, setCursor] = useState({ x: 0, y: 0 });
-  const servicesRef = useRef(null);
+
+  const servicesRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setMounted(true));
-    const onScroll = () => setScrolled(window.scrollY > 40);
+
+    const onScroll = () => {
+      setScrolled(window.scrollY > 40);
+    };
+
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
+
     return () => {
       cancelAnimationFrame(id);
       window.removeEventListener("scroll", onScroll);
     };
   }, []);
 
-  const handleServicesMouseMove = (e) => {
-    const rect = servicesRef.current.getBoundingClientRect();
-    setCursor({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  const handleServicesMouseMove = (
+    e: React.MouseEvent<HTMLDivElement>
+  ) => {
+    const element = servicesRef.current;
+
+    if (!element) return;
+
+    const rect = element.getBoundingClientRect();
+
+    setCursor({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
   };
 
   return (
@@ -154,20 +187,24 @@ export default function Home() {
         html {
           scroll-behavior: smooth;
         }
+
         ::selection {
           background: #7a2432;
           color: #f6f1e7;
         }
+
         @media (prefers-reduced-motion: reduce) {
           html {
             scroll-behavior: auto;
           }
+
           * {
             animation-duration: 0.01ms !important;
             animation-iteration-count: 1 !important;
             transition-duration: 0.01ms !important;
           }
         }
+
         .grain::before {
           content: "";
           position: fixed;
@@ -178,23 +215,29 @@ export default function Home() {
           mix-blend-mode: overlay;
           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
         }
+
         @keyframes kenburns {
           from {
             transform: scale(1.02);
           }
+
           to {
             transform: scale(1.13);
           }
         }
+
         .kenburns {
           animation: kenburns 16s ease-out forwards;
         }
+
         .reveal {
           opacity: 0;
           transform: translateY(22px);
-          transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+          transition:
+            opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
             transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
         .reveal.in {
           opacity: 1;
           transform: translateY(0);
@@ -279,6 +322,7 @@ export default function Home() {
                   {link.label}
                 </a>
               ))}
+
               <button
                 onClick={() => {
                   setMenuOpen(false);
@@ -307,6 +351,7 @@ export default function Home() {
             }}
           />
         </div>
+
         <div className="absolute inset-0 bg-black/35" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/25" />
 
@@ -320,7 +365,9 @@ export default function Home() {
               Wedding photography &amp; films, based in Kolkata
             </p>
 
-            <h1 className={`${serif} text-5xl font-normal leading-[1.02] tracking-[-0.02em] md:text-7xl lg:text-[96px]`}>
+            <h1
+              className={`${serif} text-5xl font-normal leading-[1.02] tracking-[-0.02em] md:text-7xl lg:text-[96px]`}
+            >
               {["We preserve the", "moments you'll", "wish to relive."].map(
                 (line, i) => (
                   <span key={line} className="block overflow-hidden">
@@ -328,7 +375,9 @@ export default function Home() {
                       className="block transition-all duration-700 ease-out"
                       style={{
                         transitionDelay: `${150 + i * 130}ms`,
-                        transform: mounted ? "translateY(0)" : "translateY(100%)",
+                        transform: mounted
+                          ? "translateY(0)"
+                          : "translateY(100%)",
                         opacity: mounted ? 1 : 0,
                       }}
                     >
@@ -360,6 +409,7 @@ export default function Home() {
               >
                 View stories
               </a>
+
               <button
                 onClick={() => setShowForm(true)}
                 className="rounded-full border border-white/50 bg-white/5 px-7 py-4 text-[13px] backdrop-blur-sm transition hover:bg-white hover:text-[#211C18]"
@@ -379,15 +429,19 @@ export default function Home() {
       {/* INTRO */}
       <Reveal className="px-6 py-24 md:px-10 md:py-36">
         <div className="mx-auto grid max-w-[1250px] gap-14 md:grid-cols-[0.8fr_1.2fr] md:items-center">
-          <h2 className={`${serif} text-4xl leading-[1.08] tracking-[-0.01em] text-[#7A2432] md:text-6xl`}>
+          <h2
+            className={`${serif} text-4xl leading-[1.08] tracking-[-0.01em] text-[#7A2432] md:text-6xl`}
+          >
             Every wedding has a story.
           </h2>
+
           <div className="max-w-xl">
             <p className="text-xl leading-9 text-[#211C18]/75 md:text-2xl md:leading-10">
               Pixip Foto documents weddings through authentic moments,
               emotions and details — creating photographs and films that let
               couples experience their celebration again and again.
             </p>
+
             <p className={`${serif} mt-8 italic text-[#211C18]/45`}>
               Candid, contemporary, and unmistakably yours.
             </p>
@@ -404,8 +458,10 @@ export default function Home() {
               "url('https://images.unsplash.com/photo-1587271636175-90d58cdad458?auto=format&fit=crop&w=2200&q=90')",
           }}
         />
+
         <div className="absolute inset-0 bg-black/30" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
+
         <div className="absolute bottom-0 left-0 right-0 mx-auto max-w-[1500px] px-6 pb-14 text-white md:px-10 md:pb-20">
           <h2 className={`${serif} max-w-2xl text-4xl leading-tight md:text-7xl`}>
             Stories that feel like memories.
@@ -417,9 +473,12 @@ export default function Home() {
       <Reveal id="stories" className="px-6 py-24 md:px-10 md:py-36">
         <div className="mx-auto max-w-[1500px]">
           <div className="mb-14 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-            <h2 className={`${serif} text-5xl tracking-[-0.02em] md:text-7xl`}>
+            <h2
+              className={`${serif} text-5xl tracking-[-0.02em] md:text-7xl`}
+            >
               Stories we&apos;ve told
             </h2>
+
             <p className="max-w-sm text-sm leading-7 text-[#211C18]/55">
               A collection of weddings, portraits and celebrations,
               documented through an honest and contemporary lens.
@@ -439,19 +498,27 @@ export default function Home() {
                     src={item.image}
                     alt={`${item.title} — ${item.category} photography by Pixip Foto`}
                     loading="lazy"
-                    onError={(e) => {
+                    onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                       e.currentTarget.style.opacity = "0";
                     }}
                     className="h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.06]"
                     style={{ transitionProperty: "transform, opacity" }}
                   />
+
                   <div className="absolute inset-0 bg-black/0 transition-colors duration-500 group-hover:bg-black/10" />
                 </div>
+
                 <div className="mt-5 flex items-start justify-between">
                   <div>
-                    <p className="text-xs text-[#211C18]/45">{item.category}</p>
-                    <h3 className={`${serif} mt-2 text-2xl`}>{item.title}</h3>
+                    <p className="text-xs text-[#211C18]/45">
+                      {item.category}
+                    </p>
+
+                    <h3 className={`${serif} mt-2 text-2xl`}>
+                      {item.title}
+                    </h3>
                   </div>
+
                   <span className="mt-2 overflow-hidden text-sm text-[#7A2432]">
                     <span className="block translate-y-6 transition-transform duration-500 group-hover:translate-y-0">
                       View story
@@ -473,12 +540,17 @@ export default function Home() {
               "url('https://images.unsplash.com/photo-1587271449604-04bb40332709?auto=format&fit=crop&w=2200&q=90')",
           }}
         />
+
         <div className="absolute inset-0 bg-black/25" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+
         <div className="absolute bottom-0 left-0 right-0 mx-auto max-w-[1500px] px-6 pb-14 text-white md:px-10 md:pb-20">
-          <h2 className={`${serif} max-w-3xl text-4xl leading-tight md:text-7xl`}>
+          <h2
+            className={`${serif} max-w-3xl text-4xl leading-tight md:text-7xl`}
+          >
             The little moments become the memories.
           </h2>
+
           <p className="mt-6 max-w-lg text-sm leading-7 text-white/75">
             From Annaprasan and maternity celebrations to family milestones,
             every chapter deserves to be remembered.
@@ -489,7 +561,9 @@ export default function Home() {
       {/* SERVICES */}
       <Reveal id="services" className="px-6 py-24 md:px-10 md:py-36">
         <div className="mx-auto max-w-[1250px]">
-          <h2 className={`${serif} max-w-2xl text-5xl leading-[1.05] tracking-[-0.02em] md:text-7xl`}>
+          <h2
+            className={`${serif} max-w-2xl text-5xl leading-[1.05] tracking-[-0.02em] md:text-7xl`}
+          >
             More than photographs.
           </h2>
 
@@ -514,13 +588,13 @@ export default function Home() {
                 >
                   {service.title}
                 </h3>
+
                 <p className="max-w-md text-sm leading-7 text-[#211C18]/55">
                   {service.text}
                 </p>
               </div>
             ))}
 
-            {/* cursor-follow preview */}
             <div
               className="pointer-events-none absolute z-10 hidden h-40 w-32 overflow-hidden rounded-sm shadow-2xl transition-opacity duration-200 md:block"
               style={{
@@ -534,7 +608,7 @@ export default function Home() {
                 <img
                   src={hoveredService.image}
                   alt=""
-                  onError={(e) => {
+                  onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                     e.currentTarget.style.opacity = "0";
                   }}
                   className="h-full w-full bg-[#171310] object-cover"
@@ -546,40 +620,49 @@ export default function Home() {
       </Reveal>
 
       {/* ABOUT */}
-      <Reveal id="about" className="bg-[#171310] px-6 py-24 text-white md:px-10 md:py-36">
+      <Reveal
+        id="about"
+        className="bg-[#171310] px-6 py-24 text-white md:px-10 md:py-36"
+      >
         <div className="mx-auto grid max-w-[1250px] gap-16 md:grid-cols-2 md:items-center">
           <div className="overflow-hidden">
             <img
               src="https://images.unsplash.com/photo-1743684821666-05b9c5046937?auto=format&fit=crop&w=1400&q=85"
               alt="Newlywed Indian couple sharing a quiet moment after their ceremony"
               loading="lazy"
-              onError={(e) => {
+              onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                 e.currentTarget.style.opacity = "0";
               }}
               className="h-[620px] w-full bg-[#0F0D0B] object-cover transition-opacity duration-500"
             />
           </div>
+
           <div>
-            <h2 className={`${serif} text-5xl leading-[1.05] tracking-[-0.02em] md:text-7xl`}>
+            <h2
+              className={`${serif} text-5xl leading-[1.05] tracking-[-0.02em] md:text-7xl`}
+            >
               Photographs with truth.
               <br />
               <span className="italic font-light text-[#B99361]">
                 Films with emotion.
               </span>
             </h2>
+
             <p className="mt-8 max-w-lg text-sm leading-8 text-white/65">
               Pixip Foto is a Kolkata-based photography and cinematography
               studio specialising in candid wedding photography, contemporary
               portraits and cinematic storytelling.
             </p>
+
             <p className="mt-5 max-w-lg text-sm leading-8 text-white/65">
               The approach is simple: observe the moments that happen
-              naturally, preserve the emotion honestly, and create
-              photographs that stay meaningful long after the celebration
-              ends.
+              naturally, preserve the emotion honestly, and create photographs
+              that stay meaningful long after the celebration ends.
             </p>
+
             <div className="mt-12 flex items-baseline gap-4 border-t border-white/15 pt-8">
               <p className={`${serif} text-3xl text-[#B99361]`}>2013</p>
+
               <p className="text-sm text-white/45">
                 Documenting celebrations since, through to today.
               </p>
@@ -594,29 +677,45 @@ export default function Home() {
           <h2 className={`${serif} text-5xl md:text-7xl`}>
             Celebrated for the work.
           </h2>
+
           <div className="mx-auto mt-16 max-w-xl border-y border-[#211C18]/15 py-12">
-            <div className={`${serif} text-3xl italic text-[#B99361]`}>✦</div>
+            <div className={`${serif} text-3xl italic text-[#B99361]`}>
+              ✦
+            </div>
+
             <p className="mt-6 text-sm text-[#211C18]/45">WeddingWire</p>
-            <h3 className={`${serif} mt-3 text-3xl`}>Wedding Awards 2023</h3>
+
+            <h3 className={`${serif} mt-3 text-3xl`}>
+              Wedding Awards 2023
+            </h3>
+
             <p className="mt-3 text-sm text-[#211C18]/50">Winner</p>
           </div>
         </div>
       </Reveal>
 
       {/* REVIEWS */}
-      <Reveal id="reviews" className="bg-[#DED8CF] px-6 py-24 md:px-10 md:py-36">
+      <Reveal
+        id="reviews"
+        className="bg-[#DED8CF] px-6 py-24 md:px-10 md:py-36"
+      >
         <div className="mx-auto max-w-[1250px]">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-            <h2 className={`${serif} text-5xl tracking-[-0.02em] md:text-7xl`}>
+            <h2
+              className={`${serif} text-5xl tracking-[-0.02em] md:text-7xl`}
+            >
               From our clients.
             </h2>
+
             <div className="md:text-right">
               <p className={`${serif} text-5xl text-[#7A2432]`}>4.8</p>
+
               <p className="mt-1 text-xs text-[#211C18]/50">
                 out of 5, on WeddingWire
               </p>
             </div>
           </div>
+
           <div className="mt-16 grid gap-5 md:grid-cols-3">
             {reviews.map((review) => (
               <article
@@ -628,9 +727,11 @@ export default function Home() {
                     <StarIcon key={i} />
                   ))}
                 </div>
+
                 <p className={`${serif} mt-8 text-2xl italic leading-9`}>
                   {review.text}
                 </p>
+
                 <p className="mt-8 text-xs text-[#211C18]/45">
                   {review.name}
                 </p>
@@ -643,15 +744,21 @@ export default function Home() {
       {/* CTA */}
       <Reveal className="relative overflow-hidden bg-[#171310] px-6 py-28 text-white md:px-10 md:py-40">
         <div className="mx-auto max-w-[1100px] text-center">
-          <h2 className={`${serif} text-5xl leading-[1.05] tracking-[-0.02em] md:text-8xl`}>
+          <h2
+            className={`${serif} text-5xl leading-[1.05] tracking-[-0.02em] md:text-8xl`}
+          >
             Let&apos;s create
             <br />
-            <span className="italic font-light">something timeless.</span>
+            <span className="italic font-light">
+              something timeless.
+            </span>
           </h2>
+
           <p className="mx-auto mt-8 max-w-xl text-sm leading-7 text-white/55">
             Tell us about your celebration, and let&apos;s create photographs
             and films you&apos;ll want to return to for years to come.
           </p>
+
           <button
             onClick={() => setShowForm(true)}
             className="mt-10 rounded-full bg-white px-8 py-4 text-[13px] text-[#211C18] transition hover:bg-[#B99361] hover:text-white"
@@ -668,17 +775,34 @@ export default function Home() {
             <p className={`${serif} text-xl`}>
               Pixip <span className="italic font-light">Foto</span>
             </p>
+
             <p className="mt-3 text-xs text-white/40">
               Candid stories. Cinematic memories.
             </p>
           </div>
+
           <div className="flex flex-wrap gap-x-6 gap-y-3 text-xs text-white/45">
-            <a href="#home" className="hover:text-white">Home</a>
-            <a href="#stories" className="hover:text-white">Stories</a>
-            <a href="#services" className="hover:text-white">Services</a>
-            <a href="#about" className="hover:text-white">About</a>
-            <a href="#reviews" className="hover:text-white">Reviews</a>
+            <a href="#home" className="hover:text-white">
+              Home
+            </a>
+
+            <a href="#stories" className="hover:text-white">
+              Stories
+            </a>
+
+            <a href="#services" className="hover:text-white">
+              Services
+            </a>
+
+            <a href="#about" className="hover:text-white">
+              About
+            </a>
+
+            <a href="#reviews" className="hover:text-white">
+              Reviews
+            </a>
           </div>
+
           <p className="text-xs text-white/30">© 2026 Pixip Foto</p>
         </div>
       </footer>
@@ -691,7 +815,12 @@ export default function Home() {
         aria-label="Chat with Pixip Foto on WhatsApp"
         className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-2xl transition hover:scale-105"
       >
-        <svg viewBox="0 0 32 32" className="h-7 w-7" fill="currentColor" aria-hidden="true">
+        <svg
+          viewBox="0 0 32 32"
+          className="h-7 w-7"
+          fill="currentColor"
+          aria-hidden="true"
+        >
           <path d="M16.02 3C9.4 3 4 8.35 4 14.94c0 2.21.6 4.28 1.65 6.06L4 29l8.24-1.6a12.9 12.9 0 0 0 3.78.56h.01c6.62 0 12.02-5.35 12.02-11.94C28.05 8.35 22.65 3 16.02 3zm0 21.7c-1.2 0-2.4-.24-3.5-.71l-.25-.11-4.9.95.95-4.72-.16-.27a9.7 9.7 0 0 1-1.48-5.2c0-5.4 4.44-9.79 9.9-9.79 2.65 0 5.13 1.02 7 2.87a9.6 9.6 0 0 1 2.9 6.86c0 5.4-4.44 9.12-9.46 9.12zm5.44-7.29c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.66.15-.2.3-.76.96-.93 1.16-.17.2-.34.22-.63.07-.3-.15-1.24-.46-2.36-1.46-.87-.78-1.46-1.74-1.63-2.03-.17-.3-.02-.46.13-.6.13-.13.3-.35.44-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.66-1.6-.9-2.19-.24-.58-.48-.5-.66-.5h-.56c-.2 0-.5.07-.77.37-.27.3-1 .98-1 2.4 0 1.4 1.03 2.76 1.17 2.95.15.2 2.02 3.1 4.9 4.34.68.3 1.22.47 1.63.6.68.22 1.3.19 1.79.11.55-.08 1.75-.71 2-1.4.24-.68.24-1.27.17-1.4-.07-.13-.27-.2-.56-.35z" />
         </svg>
       </a>
@@ -700,7 +829,11 @@ export default function Home() {
       {showForm && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
-          onClick={(e) => e.target === e.currentTarget && setShowForm(false)}
+          onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+            if (e.target === e.currentTarget) {
+              setShowForm(false);
+            }
+          }}
         >
           <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto bg-[#F6F1E7] p-7 md:p-10">
             <button
@@ -716,11 +849,13 @@ export default function Home() {
             </h2>
 
             <form
-              onSubmit={(e) => {
+              onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
                 e.preventDefault();
+
                 alert(
                   "Thank you. Your enquiry has been received. We will get back to you shortly."
                 );
+
                 setShowForm(false);
               }}
               className="mt-10 grid gap-5"
@@ -731,11 +866,13 @@ export default function Home() {
                   placeholder="Your name"
                   className="border-b border-[#211C18]/20 bg-transparent px-1 py-4 outline-none placeholder:text-[#211C18]/40 focus:border-[#7A2432]"
                 />
+
                 <input
                   placeholder="Partner's name"
                   className="border-b border-[#211C18]/20 bg-transparent px-1 py-4 outline-none placeholder:text-[#211C18]/40 focus:border-[#7A2432]"
                 />
               </div>
+
               <div className="grid gap-5 md:grid-cols-2">
                 <input
                   required
@@ -743,12 +880,14 @@ export default function Home() {
                   placeholder="Phone"
                   className="border-b border-[#211C18]/20 bg-transparent px-1 py-4 outline-none placeholder:text-[#211C18]/40 focus:border-[#7A2432]"
                 />
+
                 <input
                   type="email"
                   placeholder="Email"
                   className="border-b border-[#211C18]/20 bg-transparent px-1 py-4 outline-none placeholder:text-[#211C18]/40 focus:border-[#7A2432]"
                 />
               </div>
+
               <div className="grid gap-5 md:grid-cols-2">
                 <select
                   defaultValue=""
@@ -765,20 +904,24 @@ export default function Home() {
                   <option>Family Celebration</option>
                   <option>Portrait</option>
                 </select>
+
                 <input
                   type="date"
                   className="border-b border-[#211C18]/20 bg-transparent px-1 py-4 outline-none focus:border-[#7A2432]"
                 />
               </div>
+
               <input
                 placeholder="Event location"
                 className="border-b border-[#211C18]/20 bg-transparent px-1 py-4 outline-none placeholder:text-[#211C18]/40 focus:border-[#7A2432]"
               />
+
               <textarea
                 rows={4}
                 placeholder="Tell us a little about your celebration..."
                 className="border-b border-[#211C18]/20 bg-transparent px-1 py-4 outline-none placeholder:text-[#211C18]/40 focus:border-[#7A2432]"
               />
+
               <button
                 type="submit"
                 className="mt-3 rounded-full bg-[#211C18] px-7 py-4 text-[13px] text-white transition hover:bg-[#7A2432]"
@@ -795,19 +938,32 @@ export default function Home() {
 
 function StarIcon() {
   return (
-    <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4" aria-hidden="true">
+    <svg
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      className="h-4 w-4"
+      aria-hidden="true"
+    >
       <path d="M10 1.5l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6-4.6-4.1 6.1-.6z" />
     </svg>
   );
 }
 
-function Reveal({ children, className = "", id }) {
-  const ref = useRef(null);
+type RevealProps = {
+  children: React.ReactNode;
+  className?: string;
+  id?: string;
+};
+
+function Reveal({ children, className = "", id }: RevealProps) {
+  const ref = useRef<HTMLElement | null>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const node = ref.current;
+
     if (!node) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -817,7 +973,9 @@ function Reveal({ children, className = "", id }) {
       },
       { threshold: 0.15 }
     );
+
     observer.observe(node);
+
     return () => observer.disconnect();
   }, []);
 
